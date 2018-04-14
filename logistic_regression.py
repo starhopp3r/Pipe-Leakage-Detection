@@ -88,7 +88,7 @@ def evaluate_model(testing_data):
         outputs = model(values)
         _, predicted = torch.max(outputs.data, 1)
         batch_scores.append(torch.sum(labels == predicted) / labels.size(0))
-    print("Mean accuracy of model is {}%".format(np.mean(batch_scores)))
+    print("Mean accuracy of model is {}".format(np.mean(batch_scores)))
 
 
 def predict(values):
