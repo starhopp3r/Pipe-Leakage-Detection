@@ -104,6 +104,8 @@ if __name__ == '__main__':
     train_loader, test_loader = tt_split()
     train_model(train_loader)  # Train model
     evaluate_model(test_loader)  # Accuracy of model
+    # Test readings
     test_readings = np.array([[179, 93, 113, 144, 55, 124, 43, 64, 50, 51]])
+    # Predicted values
     predicted = predict(test_readings)
     print(predicted)
