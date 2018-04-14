@@ -14,9 +14,9 @@ from torch.utils.data import DataLoader
 # Hyperparameters
 input_size = 10
 num_classes = 2
-num_epochs = 200
+num_epochs = 100
 batch_size = 100
-learning_rate = 1e-6
+learning_rate = 1e-3
 
 # File name of saved model
 model_name = 'savedmodel.pt'
@@ -58,13 +58,13 @@ def tt_split():
 def train_model(training_data, save=True):
     model = LogisticRegression(input_size, num_classes)  # Model
     criterion = nn.CrossEntropyLoss()  # Loss function
-    optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)  # Optimr
+    # Optimizer
+    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     # Training the model
     for epoch in range(num_epochs):
         for i, (values, labels) in enumerate(training_data):
             values = Variable(values).float()
             labels = torch.max(Variable(labels), 1)[0]
-
             # Forward -> Backprop -> Optimize
             optimizer.zero_grad()  # Manually zero the gradients
             outputs = model(values)  # Predict new labels given value
@@ -75,28 +75,26 @@ def train_model(training_data, save=True):
 
             if i % 100 == 0:
                 print("Epoch {}, loss :{}".format(epoch + 1, loss.data[0]))
-                # Save model
-                if save:
-                    torch.save(model, model_name)
+    # Save model
+    if save:
+        torch.save(model, model_name)
 
 
 def evaluate_model(testing_data):
     model = torch.load(model_name)  # Load saved model
-    total = 0
-    correct = 0
+    batch_scores = []
     for values, labels in testing_data:
         values = Variable(values).float()
         outputs = model(values)
         _, predicted = torch.max(outputs.data, 1)
-        total += labels.size(0)
-        correct += (predicted == labels).sum()
-    print('Accuracy: %d %%' % (correct / total))
+        batch_scores.append(torch.sum(labels == predicted) / labels.size(0))
+    print("Mean accuracy of model is {}%".format(np.mean(batch_scores)))
 
 
-def predict(value):
+def predict(values):
     model = torch.load(model_name)
-    value = Variable(torch.from_numpy(value).float())
-    output = model(value)
+    values = Variable(torch.from_numpy(values)).float()
+    output = model(values)
     _, predicted = torch.max(output.data, 1)
     return predicted.numpy()
 
@@ -105,7 +103,7 @@ if __name__ == '__main__':
     # Get the training and testing data
     train_loader, test_loader = tt_split()
     train_model(train_loader)  # Train model
-    evaluate_model(test_loader)  # Evaluate model
-    test = np.array([[800, 924, 496, 453, 460, 445, 386, 904, 922, 435]])
-    prediction = predict(test)
-    print(prediction)
+    evaluate_model(test_loader)  # Accuracy of model
+    test_readings = np.array([[179, 93, 113, 144, 55, 124, 43, 64, 50, 51]])
+    predicted = predict(test_readings)
+    print(predicted)
