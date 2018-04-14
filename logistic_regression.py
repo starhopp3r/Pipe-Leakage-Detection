@@ -82,13 +82,19 @@ def train_model(training_data, save=True):
 
 def evaluate_model(testing_data):
     model = torch.load(model_name)  # Load saved model
-    batch_scores = []
+    model.eval()
+    pred = []
+    actual = []
     for values, labels in testing_data:
         values = Variable(values).float()
         outputs = model(values)
         _, predicted = torch.max(outputs.data, 1)
-        batch_scores.append(torch.sum(labels == predicted) / labels.size(0))
-    print("Mean accuracy of model is {}".format(np.mean(batch_scores)))
+        for i in range(predicted.numpy().shape[0]):
+            pred.append(predicted.numpy().reshape(predicted.size(0), 1)[i][0])
+        for i in range(labels.numpy().shape[0]):
+            actual.append(labels.numpy().reshape(labels.size(0), 1)[i][0])
+    mean = np.mean(np.array(pred) == np.array(actual)) * 100
+    print("Accuracy of model is {}%".format(mean))
 
 
 def predict(values):
