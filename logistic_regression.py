@@ -14,7 +14,7 @@ from torch.utils.data import DataLoader
 # Hyperparameters
 input_size = 10
 num_classes = 2
-num_epochs = 100
+num_epochs = 200
 batch_size = 100
 learning_rate = 1e-3
 
